@@ -1,25 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-# @file name  : split_flower_dataset.py
-# @author     : https://github.com/zhuyuedlut
-# @date       : 2023/3/15 11:07
-# @brief      : 
-"""
-
-
-# 在这个示例中，使用多线程来加速图像的批量处理。
-# 首先，将图像列表分成多个子列表，每个子列表由一个线程来处理。
-# 然后，每个线程使用模型对子列表中的所有图像进行批量处理，并将结果保存到输出目录中。
-# 最后，等待所有线程完成处理。
-
 import os
 import glob
 import cv2
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from PIL import Image
 import threading
+import pandas as pd
 
 # 定义EAST模型
 class EAST(torch.nn.Module):
@@ -44,6 +32,7 @@ def data_transform(image):
 
 # 定义批量识别函数
 def process_images(model, images, output_dir, thread_num):
+    results = []
     for i, image in enumerate(images):
         # 读取图像
         img = cv2.imread(image)
@@ -62,8 +51,11 @@ def process_images(model, images, output_dir, thread_num):
         filename = os.path.basename(image)
         cv2.imwrite(os.path.join(output_dir, filename), img)
         print(f"Thread {thread_num}: Processed image {i+1}/{len(images)}")
+        results.append((filename, table))
 
-# 主函数
+    return results
+
+# 定义主函数
 def main():
     # 加载模型
     model = EAST(...)
@@ -73,6 +65,7 @@ def main():
     # 定义输入输出路径
     input_dir = "input_images/"
     output_dir = "output_images/"
+    output_file = "output.xlsx"
 
     # 获取输入图像列表
     images = glob.glob(os.path.join(input_dir, "*.jpg"))
@@ -92,9 +85,14 @@ def main():
         thread_list.append(t)
 
     # 等待线程结束
+    results = []
     for t in thread_list:
         t.join()
+        results += t._target
+
+    # 将结果输出为Excel
+    df = pd.DataFrame(results, columns=["filename", "table"])
+    df.to_excel(output_file, index=False)
 
 if __name__ == "__main__":
     main()
-
