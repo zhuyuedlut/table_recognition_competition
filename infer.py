@@ -5,6 +5,7 @@
 # @date       : 2023/3/15 10:26
 # @brief      : 
 """
+import os
 
 import torch
 import cv2
@@ -12,10 +13,13 @@ import numpy as np
 import pandas as pd
 
 # 加载模型
-model = torch.load('table_recognition_model.pth', map_location=torch.device('cpu'))
+# 从网上找到训练好的模型.pth
+model_path = os.path.join("")
+model = torch.load(model_path, map_location=torch.device('cpu'))
 
 # 加载待处理的表格图片
-image = cv2.imread('table_image.jpg')
+img_path = os.path.join("")
+image = cv2.imread(img_path)
 
 # 对图片进行预处理
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
