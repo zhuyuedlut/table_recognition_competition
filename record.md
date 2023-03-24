@@ -5,3 +5,5 @@
 - layout: picodet_lcnet_x1_0_fgd_layout_cdla_infer
 
 #### 使用改进的模型列表
+- rec: 
+- dec: ch_ppocr_server_v2.0_det_infer
