@@ -1,6 +1,6 @@
 import cv2
 
-from paddleocr import PaddleOCR
+from paddleocr import PaddleOCR, PPStructure
 from utils import vis_polygons_with_index, bbox2points
 
 if __name__ == '__main__':
@@ -9,7 +9,7 @@ if __name__ == '__main__':
         lang='ch'
     )
 
-    img_path = './imgs/test/14.png'
+    img_path = './imgs/test/33.png'
     image_idx = '1'
 
     ocr_result = ocr.ocr(img_path, cls=True)

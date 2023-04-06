@@ -5,21 +5,28 @@
 # @date       : 2023/3/22 14:31
 # @brief      : 
 """
+import math
+
 import cv2
-
-
-from matplotlib import pyplot as plt
+import numpy as np
 
 if __name__ == '__main__':
     img = cv2.imread('./imgs/test/75.png')
 
-    # 将图像转换为灰度图像
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
 
-    # 如果灰度图像中的像素值大于165，则将像素值设为255，否则将像素值设为0
-    # 而maxval参数表示最大像素值，也就是当像素值大于阈值时，设定的最大像素值。
-    # 使用的最大像素值是255，表示将像素值大于阈值的像素设为白色（即最大像素值)。
-    ret, binary = cv2.threshold(gray, 165, 255, cv2.THRESH_BINARY)
+    h, w = binary.shape
+    hors_k = int(math.sqrt(w) * 1.2)
+    vert_k = int(math.sqrt(h) * 1.2)
 
-    plt.imshow(cv2.cvtColor(binary, cv2.COLOR_BGR2RGB))
-    plt.show()
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (hors_k, 1))
+    hors = ~cv2.dilate(binary, kernel, iterations=1)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, vert_k))
+    vert = ~cv2.dilate(binary, kernel, iterations=1)
+    borders = cv2.bitwise_or(hors, vert)
+
+    cv2.imwrite('result.jpg', borders)
+
+
