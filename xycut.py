@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@Copyright: 2023 Michael, DataSelect AI
-@License：the Apache License, Version 2.0
-@Author：Michael
-@version：
-@Date：
-@Desc: xycut algorithm
-"""
-
 from typing import List
 import cv2
 import numpy as np

@@ -5,11 +5,17 @@
 # @date       : 2023/3/22 13:20
 # @brief      :
 """
-
 import os
 import cv2
+import numpy as np
+import copy
+
 from paddleocr import PPStructure, save_structure_res
-from ocr import ocr_img
+from paddleocr.ppstructure.table.matcher import TableMatch
+
+from table_border_reg import table_border_reg
+from table_ocr import ocr_table_img
+from slope_intercept import ocr_postprocess
 
 if __name__ == "__main__":
     table_engine = PPStructure(
@@ -21,25 +27,34 @@ if __name__ == "__main__":
     )
 
     save_folder = './output'
-    img_path = './imgs/3.png'
+    img_path = './imgs/test/33.png'
+
+    # 提取表格边框
+    table_border = table_border_reg(img_path)
+    # plt.imshow(cv2.cvtColor(table_border, cv2.COLOR_BGR2RGB))
+    # plt.show()
+    temp_table_border_result = table_engine(table_border, return_ocr_result_in_table=False)
+    save_structure_res(temp_table_border_result, './output/border', os.path.basename(img_path).split('.')[0])
+    structure_res, elapse = table_engine.table_system.table_structurer(copy.deepcopy(temp_table_border_result[0]['img']))
+
+    # 提取表格中的文字
     img = cv2.imread(img_path)
-
-    result = table_engine(img, return_ocr_result_in_table=True)
-    orc_result = ocr_img(img_path)
-
-    layout_img_path = './result.jpg'
-    layout_result = table_engine(layout_img_path, return_ocr_result_in_table=False)
-
-    boxes = []
+    table_text = ocr_table_img(img_path)
+    post_table_text = [ocr_postprocess(table_text[0])]
+    dt_boxes = []
     rec_res = []
-
-    for line in orc_result[0]:
+    for line in post_table_text[0]:
         coords = line[0]
-        boxes.append(coords[0] + coords[2])
-        rec_res.append(line[1])
+        dt_boxes.append(np.array(coords[0] + coords[2]))
+        rec_res.append(np.array(line[1]))
 
-    result[0]['res']['rec_res'] = rec_res
-    result[0]['res']['boxes'] = boxes
+    # 将表格边框和文字进行匹配
+    match = TableMatch(filter_ocr_result=True)
+    pred_html = match(structure_res, dt_boxes, rec_res)
+    print(pred_html)
 
-    save_structure_res(result, save_folder, os.path.basename(img_path).split('.')[0])
+    final_result = copy.deepcopy(temp_table_border_result)
+    final_result[0]['res']['html'] = pred_html
+    save_structure_res(final_result, save_folder, os.path.basename(img_path).split('.')[0])
+
 

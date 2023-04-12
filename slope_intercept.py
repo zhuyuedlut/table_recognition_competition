@@ -53,9 +53,7 @@ def determine_is_in_same_line(
     return False
 
 
-
 def combine_lines(list_ocr_results, indicators, length_thres=4):
-
     i = 0
     lines = []
     while i < len(list_ocr_results):
@@ -101,7 +99,6 @@ def combine_lines(list_ocr_results, indicators, length_thres=4):
 
 
 def ocr_postprocess(paddle_ocr_results):
-
     if len(paddle_ocr_results) <= 1:
         return paddle_ocr_results
 

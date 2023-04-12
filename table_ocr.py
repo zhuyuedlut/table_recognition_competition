@@ -1,6 +1,6 @@
 import cv2
 
-from paddleocr import PaddleOCR, PPStructure
+from paddleocr import PaddleOCR
 from utils import vis_polygons_with_index, bbox2points
 
 ocr = PaddleOCR(
@@ -9,15 +9,16 @@ ocr = PaddleOCR(
 )
 
 
-def ocr_img(img_path: str):
+def ocr_table_img(img_path: str):
     result = ocr.ocr(img_path, cls=True)
 
     return result
 
 
 if __name__ == '__main__':
-    test_img_path = './imgs/test/14.png'
-    ocr_result = ocr.ocr(test_img_path, cls=True)
+    test_img_path = './imgs/test/33.png'
+    ocr_result = ocr_table_img(test_img_path)
+
     boxes = []
     for line in ocr_result[0]:
         coords = line[0]
